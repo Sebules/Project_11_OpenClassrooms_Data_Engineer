@@ -13,6 +13,7 @@ wheels/
 # Dossiers
 mettez-en-place-un-rag-pour-un-llm/
 .venv_rag/
+.ipynb_checkpoints/
 
 # Fichiers
 pyproject.toml
