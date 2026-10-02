@@ -1,0 +1,22 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+*.python-version
+
+# Virtual environments
+.venv_rag
+
+# Dossiers
+mettez-en-place-un-rag-pour-un-llm/
+.venv_rag/
+
+# Fichiers
+pyproject.toml
+uv.lock
+main.py
+
+
