@@ -3,7 +3,7 @@ import re
 import pandas as pd
 from bs4 import BeautifulSoup
 import unicodedata
-CODES_POSTAUX_PARIS = {f"750{i:02d}" for i in range(1, 21)} | {"75116"}
+
 
 def remove_duplicates(df:pd.DataFrame,subset)->pd.DataFrame:
     """
