@@ -1,4 +1,4 @@
-
+import emoji
 import re
 import pandas as pd
 from bs4 import BeautifulSoup
@@ -45,6 +45,22 @@ def complete_nan(df:pd.DataFrame,column,value)->pd.DataFrame:
         print(f"Something goes wrong: {e}")
     return df
 
+# Catégories Unicode conservées :
+# L = lettres, M = accents combinants, N = chiffres, P = ponctuation,
+# Z = espaces, Sc = devises (€ $), Sm = symboles mathématiques (+ = < >)
+CATEGORIES_GARDEES = ("L", "M", "N", "P", "Z", "Sc", "Sm")
+CARACTERES_GARDES = {"°", "\n", "©", "®", "™"}   # exceptions utiles
+CARACTERES_RETIRES = {"۞", "÷", "|", "~"}         # décoratifs classés en P ou Sm
+
+def nettoyer_symboles(x: str) -> str:
+    return "".join(
+        c if (c in CARACTERES_GARDES
+              or (unicodedata.category(c).startswith(CATEGORIES_GARDEES)
+                  and c not in CARACTERES_RETIRES))
+        else " "
+        for c in x
+    )
+
 def beautifulsoup_clean(x):
     """
     Extrait le texte HTML et normalise les espaces.
@@ -62,6 +78,9 @@ def beautifulsoup_clean(x):
     
     # Extraire le texte en séparant les éléments HTML
     x = soup.get_text(separator=" ", strip=True)
+
+    # Supprimer les symboles décoratifs/emojis
+    x = nettoyer_symboles(x) 
     
     # Normaliser certains caractères
     x = x.replace("\xa0"," ") # Remplacer les espaces insécables par des espaces normaux

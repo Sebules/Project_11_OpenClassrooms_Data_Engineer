@@ -1,5 +1,6 @@
 from sentence_transformers import SentenceTransformer
 import pandas as pd
+from langchain_huggingface import HuggingFaceEmbeddings
 
 def embedding_st(df:pd.DataFrame,column:str, model:str):
 
@@ -14,6 +15,11 @@ def embedding_st(df:pd.DataFrame,column:str, model:str):
         colonne qui contient les segments
     model : string
         Modèle LLM utilisé
+
+    Retourne
+    ----------
+    df["embedding"],
+    df
     """
 
     # Charger le modèle d'embedding
@@ -31,3 +37,15 @@ def embedding_st(df:pd.DataFrame,column:str, model:str):
     print(df[[column, "embedding"]].iloc[0])
 
     return df["embedding"], df
+
+def embedding_lchf(model_name:str,encode_kwargs={"normalize_embeddings": True}, query_encode_kwargs={}):
+
+    """
+    HuggingFaceEmbeddings utilisé UNIQUEMENT pour vectoriser les questions a la recherche
+
+    """
+
+    embeddings = HuggingFaceEmbeddings(model_name=model_name, encode_kwargs=encode_kwargs, query_encode_kwargs=query_encode_kwargs)
+
+    return embeddings
+    

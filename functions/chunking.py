@@ -7,7 +7,7 @@ def print_segments(segments):
         
 def chunk_rcts(chunk_size:int,chunk_overlap:int, df:pd.DataFrame,column:str):
     """
-    Sert à réaliser des chunks sur un dataframe.
+    Sert à réaliser des chunks sur un dataframe avec RecursiveCharacterTextSplitter().
 
     Paramètres
     ----------
@@ -20,6 +20,10 @@ def chunk_rcts(chunk_size:int,chunk_overlap:int, df:pd.DataFrame,column:str):
     column : string
         colonne qui contient les textes
 
+    Retourne:
+    ----------
+    df['segments']
+    df
     """
     
     text_splitter = RecursiveCharacterTextSplitter(

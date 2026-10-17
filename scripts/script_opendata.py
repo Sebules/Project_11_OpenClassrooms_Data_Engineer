@@ -13,7 +13,8 @@ from functions.chunking import chunk_rcts
 from functions.embedding import embedding_st
 from functions.indexation import indexation_faiss
 
-
+MODE_DEV = True      # passer à False pour l'exécution complète
+TAILLE_ECHANTILLON = 100
 
 if __name__ == "__main__":
     print("\n=====Import des données=====\n")
@@ -70,6 +71,11 @@ if __name__ == "__main__":
     print("\n=====Vectorisation=====\n")
     df_v = df_clean6.copy()
 
+    if MODE_DEV:
+        df_v = df_v.sample(n=min(TAILLE_ECHANTILLON, len(df_v)), random_state=42)
+        print(f"MODE DEV : échantillon de {len(df_v)} lignes")
+        df_v = df_v.reset_index(drop=True)
+
     print("\n____Combinaisondu texte_____\n")
     df_v["texte_combine"] = (
     "Titre : " + df_v["title_fr"]
@@ -81,9 +87,6 @@ if __name__ == "__main__":
     + " - Arrondissement : " + df_v["arrondissement_gps"]
     + " - Code postal : " + df_v["location_postalcode"]
     + " - Ville : " + df_v ["location_city"]
-    + " - Date début : " + df_v["lastdate_begin"]
-    + " - Date fin : " + df_v["lastdate_end"]
-    + " - Coordonnées GPS: " + "latitude " + df_v["latitude"].astype(str) + ", longitude " + df_v["longitude"].astype(str)
      )
 
     print(f"Combinaison de texte réalisée. Exemple avec la première ligne du dataframe:\n {df_v["texte_combine"][0]}")
@@ -92,10 +95,22 @@ if __name__ == "__main__":
     segments,df_c = chunk_rcts(1000,200,df_v,column="texte_combine")
 
     print("\n____Embedding_____\n")
-    embedding,df_e=embedding_st(df=df_c,column="segments", model="all-MiniLM-L6-v2")
+    embedding,df_e=embedding_st(df=df_c,column="segments", model="paraphrase-multilingual-MiniLM-L12-v2")
 
     print("\n=====Indexation=====\n")
-    index,vecteurs = indexation_faiss(df=df_e,segments_column="segments", embedding_column="embedding")
+    df_e["latitude"] = pd.to_numeric(df_e["latitude"], errors="coerce")
+    df_e["longitude"] = pd.to_numeric(df_e["longitude"], errors="coerce")
+    df_e["lastdate_begin"] = pd.to_datetime(df_e["lastdate_begin"], errors="coerce", utc=True)
+    df_e["lastdate_end"] = pd.to_datetime(df_e["lastdate_end"], errors="coerce", utc=True)
+    metadata_plus = ["latitude","longitude","lastdate_begin","lastdate_end"]
+    
+    textes,vecteurs, metadatas = indexation_faiss(
+        df=df_e,
+        segments_column="segments",
+        embedding_column="embedding",
+        metadata_columns = metadata_plus)
+    print("Premier vecteur : ",vecteurs[0])
+    print("Premier metadonnees : ",metadatas[0])
 
     
 
